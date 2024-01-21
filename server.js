@@ -6,21 +6,35 @@ const path = require('path');
 
 const port = process.env.PORT || 3001;
 
+// initialize express
 const app = express();
 
+// serve static files
 app.use(express.static('public'));
 
+app.use(express.urlencoded({ extended: true }));
+
+app.use(express.json());
+
+// start the server and listen on port
 app.listen(port, () => {
   console.log(`Server listening on port ${port}, Visit http://localhost:${port} in your browser.`);
 });
 
+// define routes
 app.get('/notes', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/notes.html'));
 });
 
 
 app.post('/api/notes', (req, res) => {
-  res.send('POST request to the homepage');
+  console.log(req.body);
+  let notes = fs.readFileSync('./db/db.json', 'utf8');
+  notes = JSON.parse(notes);
+  notes.push(req.body);
+  notes = JSON.stringify(notes);
+  fs.writeFileSync('./db/db.json', notes, 'utf8');
+  res.json(JSON.parse(notes));
 }); 
 
 app.get('/api/notes', (req, res) => {
